@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SHADOW OS | ELITE LUXURY</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Rajdhani:wght@300;700&display=swap');
+
+        :root {
+            --p-neon: #ff007f;
+            --p-glow: rgba(255, 0, 127, 0.5);
+            --bg-dark: #050002;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body { 
+            background: var(--bg-dark); color: #fff; 
+            overflow: hidden; font-family: 'Rajdhani', sans-serif;
+        }
+
+        .app-container { 
+            height: 100vh; width: 100vw;
+            overflow-y: scroll; 
+            scroll-snap-type: y mandatory; 
+            scroll-behavior: smooth;
+            scrollbar-width: none;
+            perspective: 1200px;
+        }
+        .app-container::-webkit-scrollbar { display: none; }
+
+        .video-card { 
+            height: 100vh; width: 100vw;
+            scroll-snap-align: start; 
+            scroll-snap-stop: always;
+            position: relative; 
+            display: flex; align-items: center; justify-content: center;
+            background: #000;
+        }
+
+        .video-wrapper {
+            width: 94%; height: 90%;
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+            transform: scale(0.9);
+            transition: all 0.8s cubic-bezier(0.2, 1, 0.3, 1);
+            box-shadow: 0 0 50px rgba(0,0,0,0.8), 0 0 20px var(--p-glow);
+            border: 1px solid rgba(255, 0, 127, 0.2);
+        }
+
+        .video-card.active .video-wrapper {
+            transform: scale(1);
+            border: 1px solid var(--p-neon);
+        }
+
+        video { 
+            width: 100%; height: 100%; 
+            object-fit: cover; 
+            filter: brightness(0.8) contrast(1.1);
+            transition: 0.8s filter;
+        }
+        .active video { filter: brightness(1) contrast(1.1); }
+
+        .side-scanner {
+            position: absolute; left: 0; top: 0; width: 2px; height: 100%;
+            background: var(--p-neon); box-shadow: 0 0 15px var(--p-neon);
+            animation: scanY 3s infinite alternate; z-index: 10;
+        }
+        @keyframes scanY { from { top: -100%; } to { top: 100%; } }
+
+        .side-dock { position: absolute; left: 25px; bottom: 150px; z-index: 100; display: flex; flex-direction: column; gap: 20px; }
+        .dock-item {
+            width: 55px; height: 55px; 
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px); border-radius: 20px;
+            display: flex; align-items: center; justify-content: center;
+            border: 1px solid rgba(255, 0, 127, 0.3); 
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            color: var(--p-neon);
+        }
+        .dock-item:hover { transform: translateX(10px); background: var(--p-neon); color: #fff; box-shadow: 0 0 30px var(--p-neon); }
+
+        .hud-info {
+            position: absolute; bottom: 50px; right: 35px;
+            z-index: 100; text-align: right; pointer-events: none;
+        }
+        .tag {
+            background: var(--p-neon); color: #000; font-weight: bold;
+            padding: 2px 10px; border-radius: 4px; font-size: 10px;
+            letter-spacing: 2px; margin-bottom: 10px; display: inline-block;
+        }
+
+        .progress-line {
+            position: absolute; bottom: 0; left: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--p-neon), transparent);
+            width: 0%; z-index: 1000; transition: 0.2s linear;
+        }
+
+        .top-header {
+            position: fixed; top: 0; width: 100%; padding: 40px;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 1000; pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-header">
+        <div>
+            <div class="text-[10px] text-pink-500/50 tracking-[8px] mb-1">PREMIUM INTERFACE</div>
+            <h1 class="text-3xl font-black italic tracking-tighter" style="font-family:'Orbitron'; color: var(--p-neon); text-shadow: 0 0 20px var(--p-glow);">PINK.OS</h1>
+        </div>
+        <div class="text-right">
+            <div id="clock" class="text-xl font-bold opacity-80">00:00:00</div>
+            <div class="text-[9px] text-pink-400 font-bold uppercase tracking-widest">System Stable</div>
+        </div>
+    </div>
+
+    <div class="app-container" id="feed"></div>
+
+    <script>
+        const cloudName = 'dssk5tabb';
+        const videoData = [
+            { id: 'homework12_yof', title: 'Neural Entry' },
+            { id: 'homework1_pqi', title: 'Data Stream' },
+            { id: 'homework2_ye4', title: 'Med-Sync' },
+            { id: 'homework4_zito', title: 'Bio-Matrix' },
+            { id: 'homework5_eyb', title: 'Phase One' },
+            { id: 'homework6_gst', title: 'Core Signal' },
+            { id: 'homework8_bd', title: 'Logic Node' },
+            { id: 'homework9_tn0', title: 'Secure Link' },
+            { id: '31_ypq1wb', title: 'Shadow Layer' },
+            { id: '32_ypq1wb', title: 'Final Sync' },
+            { id: '33_ypq1wb', title: 'Prime Node' },
+            { id: '34ypq1wb', title: 'Alpha Link' },
+            { id: '35_ypq1wb', title: 'Beta Stream' },
+            { id: '36_ypq1wb', title: 'Gamma Core' },
+            { id: '37_ypq1wb', title: 'Delta Phase' },
+            { id: '3cowgirl_usr', title: 'Elite Drive' },
+            { id: '4cowgirl_dm', title: 'Luxury Tech' },
+            { id: '08_Itzbic', title: 'Cyber Pulse' },
+            { id: '08_Itzbic_yxnv6q', title: 'Deep Net' },
+            { id: '09_Itzbic_yjbugq', title: 'System X' },
+            { id: '10_pjxuqz', title: 'Void Access' },
+            { id: '14_qb8mor', title: 'Ghost Shell' },
+            { id: '1cowgirl_qgd', title: 'Neon Drift' },
+            { id: '28_ypq1wb', title: 'Static Flow' },
+            { id: '2cowgirl_dwd6j2', title: 'Vector Point' },
+            { id: '30_ypq1wb', title: 'Logic Gate' },
+            { id: '05_Itzbic', title: 'Quantum Bit' },
+            { id: '05_Itzbic_swnavm', title: 'Binary Soul' },
+            { id: '05_ggqazk', title: 'Code Red' },
+            { id: '06_Itzbic', title: 'Digital Rain' },
+            { id: '06_Itzbic_iqkrib', title: 'Virtual Edge' },
+            { id: '06_quce2q', title: 'Grid Runner' },
+            { id: '07_Itzbic', title: 'Signal Loss' },
+            { id: '07_Itzbic_ijlfpf', title: 'Mainframe' },
+            { id: '07_rone4t', title: 'Encryption' },
+            { id: '02_nz4lq0', title: 'Proxy Server' },
+            { id: '03', title: 'Uplink' },
+            { id: '03_Itzbic', title: 'Matrix Hub' },
+            { id: '03_Itzbic_pwuhou', title: 'Protocol 7' },
+            { id: '03_wicOob', title: 'Sub Layer' },
+            { id: '04_Itzbic', title: 'Root Access' },
+            { id: '04_Itzbic_culukz', title: 'Host Control' },
+            { id: '04_qeyknx', title: 'Admin Mode' },
+            { id: '05', title: 'Synth Wave' },
+            { id: '01', title: 'First Boot' },
+            { id: 'AP_01', title: 'Alpha Prime' },
+            { id: '010_Itzbic_swfnkx', title: 'Overdrive' },
+            { id: '01_Itzbic', title: 'Base Logic' },
+            { id: '01_Itzbic_xqej3e', title: 'Core Logic' },
+            { id: '02', title: 'Second Stage' },
+            { id: '02_Itzbic', title: 'Process Flow' },
+            { id: '02_Itzbic_mm0p', title: 'End Transmission' }
+        ];
+
+        const feed = document.getElementById('feed');
+
+        videoData.forEach((item, index) => {
+            const card = document.createElement('div');
+            card.className = 'video-card';
+            card.innerHTML = `
+                <div class="video-wrapper">
+                    <div class="side-scanner"></div>
+                    <video loop playsinline muted src="https://res.cloudinary.com/${cloudName}/video/upload/q_auto,f_auto/${item.id}.mp4"></video>
+                    <div class="progress-line"></div>
+                </div>
+
+                <div class="side-dock">
+                    <div class="dock-item"><i class="fas fa-fingerprint text-xl"></i></div>
+                    <div class="dock-item"><i class="fas fa-shield-halved text-xl"></i></div>
+                    <div class="dock-item"><i class="fas fa-share-nodes text-xl"></i></div>
+                </div>
+
+                <div class="hud-info">
+                    <span class="tag">AUTHORIZED ACCESS</span>
+                    <h2 class="text-4xl font-black italic uppercase leading-none" style="font-family:'Orbitron'; text-shadow: 0 5px 15px rgba(0,0,0,0.5);">${item.title}</h2>
+                    <p class="text-pink-500/60 text-xs mt-3 tracking-[5px] font-bold">NODE_${(index+1).toString().padStart(2, '0')}</p>
+                </div>
+            `;
+            feed.appendChild(card);
+        });
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const vid = entry.target.querySelector('video');
+                const bar = entry.target.querySelector('.progress-line');
+                
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    vid.play().catch(() => {});
+                    vid.ontimeupdate = () => { bar.style.width = (vid.currentTime / vid.duration) * 100 + '%'; };
+                } else {
+                    entry.target.classList.remove('active');
+                    vid.pause();
+                    vid.currentTime = 0;
+                }
+            });
+        }, { threshold: 0.6 });
+
+        document.querySelectorAll('.video-card').forEach(c => observer.observe(c));
+
+        setInterval(() => {
+            document.getElementById('clock').innerText = new Date().toLocaleTimeString('en-US', { hour12: false });
+        }, 1000);
+
+        window.onclick = () => { document.querySelectorAll('video').forEach(v => v.muted = false); };
+    </script>
+</body>
+</html>
