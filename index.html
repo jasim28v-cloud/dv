@@ -123,7 +123,7 @@
     <div class="app-container" id="feed"></div>
 
     <script>
-        const cloudName = 'dssk5tabb';
+        const baseUrl = 'https://collection.cloudinary.com/dssk5tabb/f441265d3e4f8cbe4d30131cd7158db6';
         const videoData = [
             { id: 'homework12_yof', title: 'Neural Entry' },
             { id: 'homework1_pqi', title: 'Data Stream' },
@@ -187,7 +187,7 @@
             card.innerHTML = `
                 <div class="video-wrapper">
                     <div class="side-scanner"></div>
-                    <video loop playsinline muted src="https://res.cloudinary.com/${cloudName}/video/upload/q_auto,f_auto/${item.id}.mp4"></video>
+                    <video loop playsinline muted src="${baseUrl}/${item.id}.mp4"></video>
                     <div class="progress-line"></div>
                 </div>
 
