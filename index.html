@@ -3,230 +3,153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SHADOW OS | ELITE LUXURY</title>
+    <title>STUDIO HOMEWORK | EMPIRE 2027</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Rajdhani:wght@300;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap');
 
-        :root {
-            --p-neon: #ff007f;
-            --p-glow: rgba(255, 0, 127, 0.5);
-            --bg-dark: #050002;
-        }
+        :root { --neon: #00f3ff; --glass: rgba(0, 0, 0, 0.85); }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-        body { 
-            background: var(--bg-dark); color: #fff; 
+        body, html { 
+            margin: 0; padding: 0; background: #000; color: #fff; 
             overflow: hidden; font-family: 'Rajdhani', sans-serif;
+            height: 100%; width: 100%;
         }
 
-        .app-container { 
+        .main-scroller { 
             height: 100vh; width: 100vw;
-            overflow-y: scroll; 
-            scroll-snap-type: y mandatory; 
-            scroll-behavior: smooth;
-            scrollbar-width: none;
-            perspective: 1200px;
+            overflow-y: scroll; scroll-snap-type: y mandatory; 
+            scrollbar-width: none; scroll-behavior: smooth;
         }
-        .app-container::-webkit-scrollbar { display: none; }
+        .main-scroller::-webkit-scrollbar { display: none; }
 
-        .video-card { 
-            height: 100vh; width: 100vw;
-            scroll-snap-align: start; 
-            scroll-snap-stop: always;
-            position: relative; 
-            display: flex; align-items: center; justify-content: center;
-            background: #000;
+        .video-section { 
+            height: 100vh; width: 100vw; scroll-snap-align: start; 
+            position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center;
         }
 
-        .video-wrapper {
-            width: 94%; height: 90%;
-            border-radius: 40px;
-            overflow: hidden;
-            position: relative;
-            transform: scale(0.9);
-            transition: all 0.8s cubic-bezier(0.2, 1, 0.3, 1);
-            box-shadow: 0 0 50px rgba(0,0,0,0.8), 0 0 20px var(--p-glow);
-            border: 1px solid rgba(255, 0, 127, 0.2);
+        .video-bg { position: absolute; inset: 0; z-index: 1; }
+        video { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.5) contrast(1.2); transition: 1.5s ease; }
+        .video-section:hover video { transform: scale(1.05); filter: brightness(0.7); }
+
+        .hud-overlay {
+            position: absolute; inset: 30px; border: 1px solid rgba(0, 243, 255, 0.1);
+            pointer-events: none; z-index: 10; border-radius: 25px;
+        }
+        .corner { position: absolute; width: 40px; height: 40px; border: 3px solid var(--neon); filter: drop-shadow(0 0 15px var(--neon)); }
+        .t-l { top: -2px; left: -2px; border-right: 0; border-bottom: 0; border-radius: 20px 0 0 0; }
+        .b-r { bottom: -2px; right: -2px; border-left: 0; border-top: 0; border-radius: 0 0 20px 0; }
+
+        .info-panel {
+            position: absolute; bottom: 80px; left: 50px; z-index: 100;
+            max-width: 85%; pointer-events: none;
+        }
+        .node-tag {
+            background: rgba(0, 243, 255, 0.1); border: 1px solid var(--neon);
+            color: var(--neon); padding: 5px 15px; font-size: 10px;
+            letter-spacing: 5px; font-family: 'Orbitron'; margin-bottom: 25px; display: inline-block;
+        }
+        .main-title {
+            font-family: 'Orbitron'; font-weight: 900; font-size: clamp(3rem, 12vw, 6.5rem);
+            line-height: 0.8; text-transform: uppercase; letter-spacing: -4px;
+            background: linear-gradient(to right, #fff, var(--neon));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
 
-        .video-card.active .video-wrapper {
-            transform: scale(1);
-            border: 1px solid var(--p-neon);
+        #loader {
+            position: fixed; inset: 0; background: #000; z-index: 9999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
+        .progress-bar { width: 200px; height: 2px; background: rgba(255,255,255,0.1); position: relative; margin-top: 20px; }
+        .progress-fill { position: absolute; top: 0; left: 0; height: 100%; background: var(--neon); animation: sync 2.5s infinite; }
 
-        video { 
-            width: 100%; height: 100%; 
-            object-fit: cover; 
-            filter: brightness(0.8) contrast(1.1);
-            transition: 0.8s filter;
-        }
-        .active video { filter: brightness(1) contrast(1.1); }
-
-        .side-scanner {
-            position: absolute; left: 0; top: 0; width: 2px; height: 100%;
-            background: var(--p-neon); box-shadow: 0 0 15px var(--p-neon);
-            animation: scanY 3s infinite alternate; z-index: 10;
-        }
-        @keyframes scanY { from { top: -100%; } to { top: 100%; } }
-
-        .side-dock { position: absolute; left: 25px; bottom: 150px; z-index: 100; display: flex; flex-direction: column; gap: 20px; }
-        .dock-item {
-            width: 55px; height: 55px; 
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px); border-radius: 20px;
-            display: flex; align-items: center; justify-content: center;
-            border: 1px solid rgba(255, 0, 127, 0.3); 
-            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            color: var(--p-neon);
-        }
-        .dock-item:hover { transform: translateX(10px); background: var(--p-neon); color: #fff; box-shadow: 0 0 30px var(--p-neon); }
-
-        .hud-info {
-            position: absolute; bottom: 50px; right: 35px;
-            z-index: 100; text-align: right; pointer-events: none;
-        }
-        .tag {
-            background: var(--p-neon); color: #000; font-weight: bold;
-            padding: 2px 10px; border-radius: 4px; font-size: 10px;
-            letter-spacing: 2px; margin-bottom: 10px; display: inline-block;
-        }
-
-        .progress-line {
-            position: absolute; bottom: 0; left: 0; height: 2px;
-            background: linear-gradient(90deg, transparent, var(--p-neon), transparent);
-            width: 0%; z-index: 1000; transition: 0.2s linear;
-        }
-
-        .top-header {
-            position: fixed; top: 0; width: 100%; padding: 40px;
-            display: flex; justify-content: space-between; align-items: center;
-            z-index: 1000; pointer-events: none;
-        }
+        @keyframes sync { 0% { width: 0%; left: 0; } 50% { width: 100%; left: 0; } 100% { width: 0%; left: 100%; } }
     </style>
 </head>
 <body>
 
-    <div class="top-header">
-        <div>
-            <div class="text-[10px] text-pink-500/50 tracking-[8px] mb-1">PREMIUM INTERFACE</div>
-            <h1 class="text-3xl font-black italic tracking-tighter" style="font-family:'Orbitron'; color: var(--p-neon); text-shadow: 0 0 20px var(--p-glow);">PINK.OS</h1>
-        </div>
-        <div class="text-right">
-            <div id="clock" class="text-xl font-bold opacity-80">00:00:00</div>
-            <div class="text-[9px] text-pink-400 font-bold uppercase tracking-widest">System Stable</div>
-        </div>
+    <div id="loader">
+        <div class="text-cyan-400 font-black tracking-[12px] animate-pulse text-[10px]" style="font-family: 'Orbitron';">SYNCING_STUDIO_2027</div>
+        <div class="progress-bar"><div class="progress-fill"></div></div>
     </div>
 
-    <div class="app-container" id="feed"></div>
+    <header class="fixed top-0 w-full z-[1000] p-10 flex justify-between items-start pointer-events-none">
+        <div class="flex items-center gap-6">
+            <div class="w-1 h-16 bg-cyan-400 shadow-[0_0_20px_#00f3ff]"></div>
+            <div>
+                <h1 class="font-black text-3xl tracking-tighter" style="font-family: 'Orbitron';">STUDIO<span class="text-cyan-400">.HW</span></h1>
+                <div id="live-clock" class="text-[9px] text-white/40 tracking-[6px] mt-1">00:00:00 // SECURE_ACCESS</div>
+            </div>
+        </div>
+        <div class="text-right">
+            <div class="px-4 py-1 border border-cyan-500/20 rounded bg-black/60 text-[9px] text-cyan-400 uppercase tracking-[4px]">Archive Mode 2027</div>
+        </div>
+    </header>
+
+    <main class="main-scroller" id="content-engine"></main>
 
     <script>
-        const baseUrl = 'https://collection.cloudinary.com/dssk5tabb/f441265d3e4f8cbe4d30131cd7158db6';
-        const videoData = [
-            { id: 'homework12_yof', title: 'Neural Entry' },
-            { id: 'homework1_pqi', title: 'Data Stream' },
-            { id: 'homework2_ye4', title: 'Med-Sync' },
-            { id: 'homework4_zito', title: 'Bio-Matrix' },
-            { id: 'homework5_eyb', title: 'Phase One' },
-            { id: 'homework6_gst', title: 'Core Signal' },
-            { id: 'homework8_bd', title: 'Logic Node' },
-            { id: 'homework9_tn0', title: 'Secure Link' },
-            { id: '31_ypq1wb', title: 'Shadow Layer' },
-            { id: '32_ypq1wb', title: 'Final Sync' },
-            { id: '33_ypq1wb', title: 'Prime Node' },
-            { id: '34ypq1wb', title: 'Alpha Link' },
-            { id: '35_ypq1wb', title: 'Beta Stream' },
-            { id: '36_ypq1wb', title: 'Gamma Core' },
-            { id: '37_ypq1wb', title: 'Delta Phase' },
-            { id: '3cowgirl_usr', title: 'Elite Drive' },
-            { id: '4cowgirl_dm', title: 'Luxury Tech' },
-            { id: '08_Itzbic', title: 'Cyber Pulse' },
-            { id: '08_Itzbic_yxnv6q', title: 'Deep Net' },
-            { id: '09_Itzbic_yjbugq', title: 'System X' },
-            { id: '10_pjxuqz', title: 'Void Access' },
-            { id: '14_qb8mor', title: 'Ghost Shell' },
-            { id: '1cowgirl_qgd', title: 'Neon Drift' },
-            { id: '28_ypq1wb', title: 'Static Flow' },
-            { id: '2cowgirl_dwd6j2', title: 'Vector Point' },
-            { id: '30_ypq1wb', title: 'Logic Gate' },
-            { id: '05_Itzbic', title: 'Quantum Bit' },
-            { id: '05_Itzbic_swnavm', title: 'Binary Soul' },
-            { id: '05_ggqazk', title: 'Code Red' },
-            { id: '06_Itzbic', title: 'Digital Rain' },
-            { id: '06_Itzbic_iqkrib', title: 'Virtual Edge' },
-            { id: '06_quce2q', title: 'Grid Runner' },
-            { id: '07_Itzbic', title: 'Signal Loss' },
-            { id: '07_Itzbic_ijlfpf', title: 'Mainframe' },
-            { id: '07_rone4t', title: 'Encryption' },
-            { id: '02_nz4lq0', title: 'Proxy Server' },
-            { id: '03', title: 'Uplink' },
-            { id: '03_Itzbic', title: 'Matrix Hub' },
-            { id: '03_Itzbic_pwuhou', title: 'Protocol 7' },
-            { id: '03_wicOob', title: 'Sub Layer' },
-            { id: '04_Itzbic', title: 'Root Access' },
-            { id: '04_Itzbic_culukz', title: 'Host Control' },
-            { id: '04_qeyknx', title: 'Admin Mode' },
-            { id: '05', title: 'Synth Wave' },
-            { id: '01', title: 'First Boot' },
-            { id: 'AP_01', title: 'Alpha Prime' },
-            { id: '010_Itzbic_swfnkx', title: 'Overdrive' },
-            { id: '01_Itzbic', title: 'Base Logic' },
-            { id: '01_Itzbic_xqej3e', title: 'Core Logic' },
-            { id: '02', title: 'Second Stage' },
-            { id: '02_Itzbic', title: 'Process Flow' },
-            { id: '02_Itzbic_mm0p', title: 'End Transmission' }
+        const cloudID = "dssk5tabb";
+        const videoArchive = [
+            "homework12_yof", "homework1_pqi", "homework2_ye4", "homework4_zito", 
+            "homework5_eyb", "homework6_gst", "homework8_bd", "homework9_tn0",
+            "31_ypq1wb", "32_ypq1wb", "33_ypq1wb", "34ypq1wb", "35_ypq1wb", 
+            "36_ypq1wb", "37_ypq1wb", "3cowgirl_usr", "4cowgirl_dm", "08_Itzbic",
+            "08_Itzbic_yxnv6q", "09_Itzbic_yjbugq", "10_pjxuqz", "14_qb8mor",
+            "1cowgirl_qgd", "28_ypq1wb", "2cowgirl_dwd6j2", "30_ypq1wb",
+            "05_Itzbic", "05_Itzbic_swnavm", "05_ggqazk", "06_Itzbic",
+            "06_Itzbic_iqkrib", "06_quce2q", "07_Itzbic", "07_Itzbic_ijlfpf",
+            "07_rone4t", "02_nz4lq0", "03", "03_Itzbic", "03_Itzbic_pwuhou",
+            "03_wicOob", "04_Itzbic", "04_Itzbic_culukz", "04_qeyknx", "05",
+            "01", "AP_01", "010_Itzbic_swfnkx", "01_Itzbic", "01_Itzbic_xqej3e",
+            "02", "02_Itzbic", "02_Itzbic_mm0p"
         ];
 
-        const feed = document.getElementById('feed');
+        const engine = document.getElementById('content-engine');
 
-        videoData.forEach((item, index) => {
-            const card = document.createElement('div');
-            card.className = 'video-card';
-            card.innerHTML = `
-                <div class="video-wrapper">
-                    <div class="side-scanner"></div>
-                    <video loop playsinline muted src="${baseUrl}/${item.id}.mp4"></video>
-                    <div class="progress-line"></div>
+        videoArchive.forEach((id, index) => {
+            const section = document.createElement('section');
+            section.className = 'video-section';
+            section.innerHTML = `
+                <div class="hud-overlay"><div class="corner t-l"></div><div class="corner b-r"></div></div>
+                <div class="video-bg">
+                    <video loop playsinline muted src="https://res.cloudinary.com/${cloudID}/video/upload/q_auto:best,f_auto/${id}.mp4"></video>
                 </div>
-
-                <div class="side-dock">
-                    <div class="dock-item"><i class="fas fa-fingerprint text-xl"></i></div>
-                    <div class="dock-item"><i class="fas fa-shield-halved text-xl"></i></div>
-                    <div class="dock-item"><i class="fas fa-share-nodes text-xl"></i></div>
-                </div>
-
-                <div class="hud-info">
-                    <span class="tag">AUTHORIZED ACCESS</span>
-                    <h2 class="text-4xl font-black italic uppercase leading-none" style="font-family:'Orbitron'; text-shadow: 0 5px 15px rgba(0,0,0,0.5);">${item.title}</h2>
-                    <p class="text-pink-500/60 text-xs mt-3 tracking-[5px] font-bold">NODE_${(index+1).toString().padStart(2, '0')}</p>
+                <div class="info-panel">
+                    <div class="node-tag">NODE_ARCHIVE_${index + 1}</div>
+                    <h2 class="main-title">HOMEWORK<br>STUDIO</h2>
+                    <p class="text-white/20 text-[9px] mt-8 tracking-[8px] uppercase font-bold italic">Reference_ID: ${id}</p>
                 </div>
             `;
-            feed.appendChild(card);
+            engine.appendChild(section);
         });
 
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                const vid = entry.target.querySelector('video');
-                const bar = entry.target.querySelector('.progress-line');
-                
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('active');
-                    vid.play().catch(() => {});
-                    vid.ontimeupdate = () => { bar.style.width = (vid.currentTime / vid.duration) * 100 + '%'; };
-                } else {
-                    entry.target.classList.remove('active');
-                    vid.pause();
-                    vid.currentTime = 0;
-                }
-            });
-        }, { threshold: 0.6 });
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loader').style.opacity = '0';
+                setTimeout(() => document.getElementById('loader').style.display = 'none', 1000);
+            }, 2000);
+            startObserver();
+        });
 
-        document.querySelectorAll('.video-card').forEach(c => observer.observe(c));
+        function startObserver() {
+            const obs = new IntersectionObserver((entries) => {
+                entries.forEach(e => {
+                    const vid = e.target.querySelector('video');
+                    if (e.isIntersecting) vid.play();
+                    else { vid.pause(); vid.currentTime = 0; }
+                });
+            }, { threshold: 0.7 });
+            document.querySelectorAll('.video-section').forEach(s => obs.observe(s));
+        }
 
         setInterval(() => {
-            document.getElementById('clock').innerText = new Date().toLocaleTimeString('en-US', { hour12: false });
+            const now = new Date();
+            document.getElementById('live-clock').innerText = 
+                now.getHours().toString().padStart(2, '0') + ":" + 
+                now.getMinutes().toString().padStart(2, '0') + ":" + 
+                now.getSeconds().toString().padStart(2, '0') + " // SYSTEM_ACTIVE";
         }, 1000);
 
         window.onclick = () => { document.querySelectorAll('video').forEach(v => v.muted = false); };
